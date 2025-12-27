@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Planet.h"
-#include "PlanetGenerator.h"
+#include "Scenes.h"
 #include "Consts.h"
 
 void handleInput(Camera2D& camera);
@@ -75,29 +75,7 @@ int main() {
     SetTargetFPS(60);
     InitWindow(Consts::width,Consts::height,Consts::title);
 
-    std::vector<Planet> planets{};
-    PlanetGenerator generator;
-
-    generator
-        .withMass(0.05, 0.1)
-        .withRadius(5, 10)
-        .withXIn(0.25, 0.75)
-        .withYIn(0, 1)
-        ;
-
-    for(int i = 0 ; i < 100; i++)
-    {
-        Planet randomPlanet = generator.generate();
-        randomPlanet.speed = Vector3{1000,1000,0};
-        planets.push_back(randomPlanet);
-    }
-
-    planets.push_back(Planet{
-        Consts::getXAtWindowPercent(0.5),
-        Consts::getYAtWindowPercent(0.5),
-        100,
-        1e3
-    });
+    std::vector<Planet> planets = Scenes::next(Scenes::BlackHole);
 
     auto physics = [&](const double dT){
         std::for_each(std::execution::par, planets.begin(), planets.end(),
