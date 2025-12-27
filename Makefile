@@ -1,8 +1,8 @@
 CXX = g++
-CXXFLAGS = -std=c++20 -O3  -Wall -Werror -Wextra -Iheaders
+CXXFLAGS = -std=c++20 -O3  -Wall -Werror -Wextra -Iheaders -isystem lib
 LIBS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
-SRC = main.cpp src/Planet.cpp src/PlanetGenerator.cpp src/Scenes.cpp
+SRC = main.cpp src/Planet.cpp src/PlanetGenerator.cpp src/Scenes.cpp 
 OBJ = $(SRC:.cpp=.o)
 TARGET = scppace
 

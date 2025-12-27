@@ -6,9 +6,9 @@
 namespace Scenes 
 {
     enum Scene {
-        ThreeBody,
-        BlackHole,
-        FreeScene,
+        BlackHole = 0,
+        ThreeBody = 1,
+        FreeScene = 2,
     };
 
     std::vector<Planet> threeBody();

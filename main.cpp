@@ -1,21 +1,65 @@
+#include <iostream>
+#include <vector>
 #include <cmath>
-#include <execution>
-#include <algorithm>
+
 #include <raylib.h>
 #include <raymath.h>
-#include <vector>
+
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
 
 #include "Planet.h"
 #include "Scenes.h"
 #include "Consts.h"
 
 void handleInput(Camera2D& camera);
+void drawUI(int* scene);
 
-template<typename D, typename P>
-constexpr void main_loop(D&& drawing, P&& physics) noexcept {
+Camera2D createCamera();
 
+void main_loop() noexcept {
     double initialTime{GetTime()};
+    Camera2D camera{createCamera()};
 
+    int oldScene{Scenes::BlackHole};
+    int newScene{};
+
+    std::vector<Planet> planets{Scenes::next(Scenes::BlackHole)};
+    while(!WindowShouldClose())
+    {
+        BeginDrawing();
+
+            ClearBackground(BLACK);
+       
+            drawUI(&newScene);
+            if(newScene != oldScene)
+            {
+                planets = Scenes::next(static_cast<Scenes::Scene>(newScene));
+                oldScene = newScene;
+            }
+
+            handleInput(camera);
+
+            const double currentTime{GetTime()};
+            const double dT{currentTime-initialTime};
+            initialTime = currentTime;
+            if(dT <= 0)
+                continue;
+
+            BeginMode2D(camera);
+                for(Planet& p : planets)
+                {
+                    p.step(dT, planets);
+                    draw2d(p);
+                }
+            EndMode2D();
+
+        EndDrawing();
+    }
+    CloseWindow();
+}
+
+Camera2D createCamera() {
     Camera2D camera{};
     float x = Consts::getXAtWindowPercent(0.5);
     float y = Consts::getYAtWindowPercent(0.5);
@@ -23,33 +67,10 @@ constexpr void main_loop(D&& drawing, P&& physics) noexcept {
     camera.offset = { 
             x,y
     };
-
     camera.rotation = 0.f;
     camera.zoom = 1.f;
 
-    while(!WindowShouldClose())
-    {
-        const double currentTime{GetTime()};
-        const double dT{currentTime-initialTime};
-
-        initialTime = currentTime;
-        if(dT <= 0)
-            continue;
-
-        physics(dT); 
-
-        BeginDrawing();
-        BeginMode2D(camera);
-        ClearBackground(BLACK);
-
-        handleInput(camera);
-
-        drawing();
-
-        EndMode2D();
-        EndDrawing();
-    }
-    CloseWindow();
+    return camera;
 }
 
 void handleInput(Camera2D& camera)
@@ -71,25 +92,15 @@ void handleInput(Camera2D& camera)
         camera.offset.y -= amount;
 }
 
+void drawUI(int* scene)
+{
+    GuiComboBox(Rectangle{ 24, 24, 120, 30 }, "Black Hole;Three Body;Free Scene", scene);
+}
+
 int main() {
     SetTargetFPS(60);
     InitWindow(Consts::width,Consts::height,Consts::title);
-
-    std::vector<Planet> planets = Scenes::next(Scenes::BlackHole);
-
-    auto physics = [&](const double dT){
-        std::for_each(std::execution::par, planets.begin(), planets.end(),
-        [&](Planet& s) {
-            s.step(dT, planets);
-        });
-    };
-
-    auto drawing = [&](){
-        for(const Planet& s :  planets)
-            draw2d(s);
-    };
-
-    main_loop(drawing, physics);
+    main_loop();
 
     return 0;
 }
