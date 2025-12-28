@@ -31,7 +31,7 @@ std::vector<Planet> Scenes::blackHole() {
         .withYIn(0, 1)
         ;
 
-    for(int i = 0 ; i < 2000; i++)
+    for(int i = 0 ; i < 1500; i++)
     {
         Planet randomPlanet = generator.generate();
         Vector3 pos{randomPlanet.position()};
