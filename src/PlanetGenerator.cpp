@@ -37,6 +37,24 @@ PlanetGenerator& PlanetGenerator::withYIn(double min, double max) {
 
 }
 
+PlanetGenerator& PlanetGenerator::withSpeedX(double min, double max) {
+
+    m_speed_min_x = min;
+    m_speed_max_x = max;
+    
+    return *this;
+
+}
+
+PlanetGenerator& PlanetGenerator::withSpeedY(double min, double max) {
+
+    m_speed_min_y = min;
+    m_speed_max_y = max;
+    
+    return *this;
+
+}
+
 float generateRandomValue(float min, float max) {
 
     static std::random_device dev;
@@ -51,14 +69,23 @@ Planet PlanetGenerator::generate() {
 
     float mass = generateRandomValue(m_min_mass, m_max_mass);
     float radius = generateRandomValue(m_min_radius, m_max_radius);
-    float x = generateRandomValue(m_min_x, m_max_x);
-    float y = generateRandomValue(m_min_y, m_max_y);
-    float z = generateRandomValue(m_min_z, m_max_z);
 
-    Vector3 pos{x,y,z};
+    Vector3 pos {
+        generateRandomValue(m_min_x, m_max_x),
+        generateRandomValue(m_min_y, m_max_y),
+        0
+    };
+
+    Vector3 speed{
+        generateRandomValue(m_speed_min_x, m_speed_max_x),
+        generateRandomValue(m_speed_min_y, m_speed_max_y),
+        0
+    };
+
     return Planet(
         pos,
         radius,
-        mass
+        mass,
+        speed 
     );
 }

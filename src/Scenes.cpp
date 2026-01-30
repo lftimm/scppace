@@ -11,7 +11,6 @@ using sceneFactory = std::function<std::vector<Planet>()>;
 static std::unordered_map<Scenes::Scene, sceneFactory> sceneMap{
     {Scenes::BlackHole, Scenes::blackHole},
     {Scenes::ThreeBody, Scenes::threeBody},
-    {Scenes::FreeScene, Scenes::freeScene},
 };
 
 std::vector<Planet> Scenes::next(Scene scene)
@@ -25,27 +24,30 @@ std::vector<Planet> Scenes::blackHole() {
     PlanetGenerator generator;
 
     generator
-        .withMass(0.05, 0.1)
-        .withRadius(5, 10)
-        .withXIn(0.25, 0.75)
-        .withYIn(0, 1)
+        .withMass(0.05, 5)
+        .withRadius(15, 30)
+        .withXIn(-2,-10)
+        .withYIn(-10,2)
+        .withSpeedX(0, 400)
+        .withSpeedY(0, 1e4)
         ;
 
-    for(int i = 0 ; i < 1500; i++)
+    for(int i = 0 ; i < 3500; i++)
     {
         Planet randomPlanet = generator.generate();
-        Vector3 pos{randomPlanet.position()};
-        float angle{atanf(pos.y/pos.x)};
-        randomPlanet.speed = Vector3{100*cos(angle),-100*sin(angle),0};
         planets.push_back(randomPlanet);
     }
+    
 
-    planets.push_back(Planet{
-        Consts::getXAtWindowPercent(0.5),
-        Consts::getYAtWindowPercent(0.5),
+    Planet blackHole{
+        Consts::getXAtWindowPercent(0),
+        Consts::getYAtWindowPercent(0),
         100,
-        1e3
-    });
+        1e5,
+        Vector3Zero()
+    };
+
+    planets.push_back(blackHole);
 
     return planets;
 }

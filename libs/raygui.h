@@ -316,7 +316,7 @@
 *
 *   LICENSE: zlib/libpng
 *
-*   Copyright (c) 2014-2025 Ramon Santamaria (@raysan5)
+*   Copyright (c) 2014-2026 Ramon Santamaria (@raysan5)
 *
 *   This software is provided "as-is", without any express or implied warranty. In no event
 *   will the authors be held liable for any damages arising from the use of this software.
@@ -351,9 +351,9 @@
 // NOTE: Microsoft specifiers to tell compiler that symbols are imported/exported from a .dll
 #if defined(_WIN32)
     #if defined(BUILD_LIBTYPE_SHARED)
-        #define RAYGUIAPI __declspec(dllexport)     // We are building the library as a Win32 shared library (.dll)
+        #define RAYGUIAPI __declspec(dllexport)     // Building the library as a Win32 shared library (.dll)
     #elif defined(USE_LIBTYPE_SHARED)
-        #define RAYGUIAPI __declspec(dllimport)     // We are using the library as a Win32 shared library (.dll)
+        #define RAYGUIAPI __declspec(dllimport)     // Using the library as a Win32 shared library (.dll)
     #endif
 #endif
 
@@ -369,9 +369,9 @@
 // NOTE: Avoiding those calls, also avoids const strings memory usage
 #define RAYGUI_SUPPORT_LOG_INFO
 #if defined(RAYGUI_SUPPORT_LOG_INFO)
-  #define RAYGUI_LOG(...)           printf(__VA_ARGS__)
+    #define RAYGUI_LOG(...)     printf(__VA_ARGS__)
 #else
-  #define RAYGUI_LOG(...)
+    #define RAYGUI_LOG(...)
 #endif
 
 //----------------------------------------------------------------------------------

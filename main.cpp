@@ -1,5 +1,6 @@
 #include <vector>
 #include <cmath>
+
 #include <raylib.h>
 #include <raymath.h>
 
@@ -11,6 +12,7 @@
 #include "Scenes.h"
 #include "Consts.h"
 
+
 void handleInput(Camera2D& camera);
 Camera2D createCamera();
 
@@ -18,35 +20,33 @@ void main_loop() noexcept {
     double initialTime{GetTime()};
     Camera2D camera{createCamera()};
 
-    int oldScene{Scenes::BlackHole};
-    int newScene{};
+    //int oldScene{Scenes::BlackHole};
+    //int newScene{};
 
     std::vector<Planet> planets{Scenes::next(Scenes::BlackHole)};
     while(!WindowShouldClose())
     {
         BeginDrawing();
 
-            ClearBackground(BLACK);
+            ClearBackground(Color{32,32,32,255});
 
+            /*
             if(newScene != oldScene)
             {
                 planets = Scenes::next(static_cast<Scenes::Scene>(newScene));
                 oldScene = newScene;
             }
-
+            */
 
             handleInput(camera);
 
             const double currentTime{GetTime()};
             const double dT{currentTime-initialTime};
             initialTime = currentTime;
-            if(dT <= 0)
-                continue;
-
-
 
             BeginMode2D(camera);
 
+                /*
                 Vector2 topLeft{Vector2{-50000,-50000}};
                 Vector2 bottomRight{Vector2{50000,50000}};
 
@@ -55,17 +55,34 @@ void main_loop() noexcept {
 
                 for (int y = topLeft.y; y <= bottomRight.y; y += 100/camera.zoom)
                     DrawLine(topLeft.x, y, bottomRight.x, y, DARKGRAY);
+                */
 
-                for(Planet& p : planets)
+                
+                std::vector<Vector3> forces{};
+                forces.reserve(planets.size());
+                
+                #pragma omp parallel num_threads(6) shared(forces)
                 {
-                    p.step(dT, planets);
-                    draw2d(p);
+                    // first calculate all forces
+                    #pragma omp for 
+                    for(size_t i = 0; i < planets.size(); i++)
+                        forces[i] = planets[i].calc_gravity(planets);
+
+                    #pragma omp barrier
+
+                    // then update position of all
+                    #pragma omp for 
+                    for(size_t i = 0; i < planets.size(); i++)
+                        planets[i].update_position(dT, forces[i]);
                 }
 
-            EndMode2D();
+                //draw all
+                for(Planet& p : planets)
+                    draw2d(p);
 
+            EndMode2D();
             DrawFPS(Consts::getXAtWindowPercent(1)-80, Consts::getYAtWindowPercent(0.005));
-            GuiComboBox(Rectangle{ 24, 24, 120, 30 }, "Black Hole;Three Body;Free Scene",&newScene);
+            //GuiComboBox(Rectangle{ 24, 24, 120, 30 }, "Black Hole;Three Body",&newScene);
         EndDrawing();
     }
     CloseWindow();
@@ -73,7 +90,7 @@ void main_loop() noexcept {
 
 Camera2D createCamera() {
     Camera2D camera{};
-    camera.offset = Vector2{0,0};
+    camera.offset = Vector2{Consts::getXAtWindowPercent(0.5),Consts::getXAtWindowPercent(0.5)}; 
     camera.zoom = 1.f;
 
     return camera;
@@ -87,11 +104,11 @@ void handleInput(Camera2D& camera)
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
         camera.offset = GetMousePosition();
         camera.target = mouseWorldPos;
-        float scale = 0.2f*wheel;
-        camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.025f, 5.0f);
+        float scale = 0.5f*wheel;
+        camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.005f, 5.0f);
     }
 
-    float amount = Clamp(expf(1/camera.zoom),2.f, 5.f);
+    float amount = Clamp(expf(1/camera.zoom),2.f, 50.f);
     if(IsKeyPressed(KEY_A) || IsKeyDown(KEY_A))
         camera.target.x -= amount;
 

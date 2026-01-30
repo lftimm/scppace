@@ -6,26 +6,29 @@
 
 class Planet
 {
-public:
-    Planet(double x, double y, double radius, double mass);
-    Planet(Vector3 pos, double radius, double mass);
-
-    Vector3 gravityAt(const Planet& other) const;
-    Vector3 gravityAt(const Vector3 pos, double mass) const;
-
-    Vector3 speed{};
-    Vector3 position() const;
-    float radius() const;
-    Color color() const;
-    void step(double dT, const std::vector<Planet>& planets);
-
 private:
     const float m_radius{};
     const float m_mass{};
     Vector3 m_acceleration{};
     Vector3 m_position{};
+    Vector3 m_speed{};
     Color m_color{};
+
+public:
+    Planet(double, double, double, double, Vector3);
+    Planet(Vector3, double, double, Vector3);
+
+    Vector3 gravityAt(const Planet&) const;
+    Vector3 gravityAt(const Vector3, double) const;
+
+    float mass() const;
+    Vector3 position() const;
+    float radius() const;
+    Color color() const;
+
+    Vector3 calc_gravity(const std::vector<Planet>&);
+    void update_position(const float, const Vector3&);
+
+    friend void draw2d(const Planet&);
 };
 
-void draw2d(const Planet&);
-Color generateRandomColor();

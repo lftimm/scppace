@@ -21,11 +21,19 @@ private:
     double m_min_z{};
     double m_max_z{};
 
+    double m_speed_min_x{};
+    double m_speed_max_x{};
+
+    double m_speed_min_y{};
+    double m_speed_max_y{};
+
 public:
     PlanetGenerator& withMass(double min, double max);
     PlanetGenerator& withRadius(double min, double max);
     PlanetGenerator& withXIn(double min, double max);
     PlanetGenerator& withYIn(double min, double max);
+    PlanetGenerator& withSpeedX(double min, double max);
+    PlanetGenerator& withSpeedY(double min, double max);
 
     Planet generate();
 };
