@@ -1,2 +1,4 @@
+*.cache
+*.vscode
 *.o
 compile_commands.json
